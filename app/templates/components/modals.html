@@ -1,0 +1,104 @@
+<!-- Order Detail Modal -->
+
+<div class="modal-overlay" id="orderModal" style="display:none;">
+    <div class="modal-container glass-card">
+        <!-- Modal Header -->
+        <div class="modal-header">
+            <div class="modal-title-group">
+                <h2>Order Details</h2>
+                <span class="order-code-badge" id="modalOrderCode">—</span>
+            </div>
+            <button class="modal-close" onclick="OrderPulse.closeModal()">
+                <span class="material-icons-round">close</span>
+            </button>
+        </div>
+
+        <!-- Modal Body -->
+        <div class="modal-body" id="modalBody">
+            <!-- Loading State -->
+            <div class="modal-loading" id="modalLoading">
+                <div class="spinner"></div>
+                <p>Loading order details...</p>
+            </div>
+
+            <!-- Content -->
+            <div class="modal-content" id="modalContent" style="display:none;">
+                <!-- Order Summary -->
+                <div class="detail-grid">
+                    <div class="detail-item">
+                        <span class="detail-label">Store Type</span>
+                        <span class="detail-value" id="modalStoreType">—</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Order Date</span>
+                        <span class="detail-value" id="modalOrderDate">—</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Status</span>
+                        <span class="detail-value" id="modalStatus">—</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Customer</span>
+                        <span class="detail-value" id="modalCustomer">—</span>
+                    </div>
+                </div>
+
+                <!-- Packages Section -->
+                <div class="packages-section">
+                    <h3>
+                        <span class="material-icons-round">inventory_2</span>
+                        Packages
+                    </h3>
+                    <div class="packages-list" id="modalPackages">
+                        <p class="text-muted">No package information available.</p>
+                    </div>
+                </div>
+
+                <!-- Tracking Timeline -->
+                <div class="timeline-section">
+                    <h3>
+                        <span class="material-icons-round">timeline</span>
+                        Tracking Timeline
+                    </h3>
+                    <div class="timeline" id="modalTimeline">
+                        <div class="timeline-step completed">
+                            <div class="timeline-dot"></div>
+                            <div class="timeline-info">
+                                <span class="timeline-label">Order Created</span>
+                                <span class="timeline-time" id="timeCreated">—</span>
+                            </div>
+                        </div>
+                        <div class="timeline-step completed">
+                            <div class="timeline-dot"></div>
+                            <div class="timeline-info">
+                                <span class="timeline-label">Processing</span>
+                                <span class="timeline-time" id="timeProcessing">—</span>
+                            </div>
+                        </div>
+                        <div class="timeline-step">
+                            <div class="timeline-dot"></div>
+                            <div class="timeline-info">
+                                <span class="timeline-label">Packed</span>
+                                <span class="timeline-time" id="timePacked">—</span>
+                            </div>
+                        </div>
+                        <div class="timeline-step">
+                            <div class="timeline-dot"></div>
+                            <div class="timeline-info">
+                                <span class="timeline-label">Dispatched</span>
+                                <span class="timeline-time" id="timeDispatched">—</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Footer -->
+        <div class="modal-footer">
+            <button class="btn btn-outline" onclick="OrderPulse.closeModal()">
+                <span>Close</span>
+            </button>
+        </div>
+    </div>
+</div>

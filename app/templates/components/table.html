@@ -1,0 +1,48 @@
+<!-- Order Table Component -->
+
+<div class="table-header">
+    <h3>Recent Orders</h3>
+    <div class="table-controls">
+        <div class="search-box">
+            <span class="material-icons-round">search</span>
+            <input type="text" id="tableSearch" placeholder="Search orders..." oninput="OrderPulse.filterTable()">
+        </div>
+        <select id="storeFilter" class="input-field input-small" onchange="OrderPulse.filterTable()">
+            <option value="">All Stores</option>
+            <option value="PA">PA</option>
+            <option value="PI">PI</option>
+            <option value="MA">MA</option>
+            <option value="BL">BL</option>
+        </select>
+    </div>
+</div>
+
+<div class="table-wrapper">
+    <table class="data-table" id="ordersTable">
+        <thead>
+            <tr>
+                <th onclick="OrderPulse.sortTable('code')">Order Code <span class="material-icons-round sort-icon">unfold_more</span></th>
+                <th onclick="OrderPulse.sortTable('store_type')">Store Type <span class="material-icons-round sort-icon">unfold_more</span></th>
+                <th>AWB Number</th>
+                <th onclick="OrderPulse.sortTable('dispatch_time')">Dispatch Time (hrs) <span class="material-icons-round sort-icon">unfold_more</span></th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="ordersTableBody">
+            <tr class="empty-row">
+                <td colspan="6">
+                    <div class="empty-state">
+                        <span class="material-icons-round">inbox</span>
+                        <p>No orders loaded. Click "Load Orders" to fetch data.</p>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<div class="table-footer">
+    <span class="table-info" id="tableInfo">Showing 0 of 0 orders</span>
+    <div class="pagination" id="pagination"></div>
+</div>

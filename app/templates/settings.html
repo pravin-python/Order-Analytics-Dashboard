@@ -1,0 +1,101 @@
+{% extends "theme.html" %}
+
+{% block title %}OrderPulse - Settings{% endblock %}
+{% block breadcrumb %}Settings{% endblock %}
+
+{% block content %}
+<div class="settings-container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <h1>API Settings</h1>
+        <p class="page-subtitle">Configure your OMS API credentials to connect with your order management system</p>
+    </div>
+
+    <!-- Settings Form Card -->
+    <div class="settings-form-card glass-card">
+        <h2 class="section-title">
+            <span class="material-icons-round">link</span>
+            Connection Details
+        </h2>
+
+        <form id="settingsForm" onsubmit="return false;">
+            <div class="form-group">
+                <label for="apiBaseUrl">API Base URL</label>
+                <input type="url" id="apiBaseUrl" class="input-field" placeholder="https://your-oms-api.com" required>
+            </div>
+
+            <div class="form-group">
+                <label for="apiUsername">Username</label>
+                <input type="text" id="apiUsername" class="input-field" placeholder="Enter username" required>
+            </div>
+
+            <div class="form-group">
+                <label for="apiPassword">Password</label>
+                <div class="password-wrapper">
+                    <input type="password" id="apiPassword" class="input-field" placeholder="Enter password" required>
+                    <button type="button" class="password-toggle" onclick="OrderPulse.togglePassword()">
+                        <span class="material-icons-round" id="passwordToggleIcon">visibility</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="button" class="btn btn-outline" id="testConnectionBtn" onclick="OrderPulse.testConnection()">
+                    <span class="material-icons-round">power</span>
+                    <span>Test Connection</span>
+                </button>
+                <button type="button" class="btn btn-primary" id="saveSettingsBtn" onclick="OrderPulse.saveSettings()">
+                    <span class="material-icons-round">save</span>
+                    <span>Save Settings</span>
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Connection Status Panel -->
+    <div class="connection-panel glass-card" id="connectionPanel" style="display:none;">
+        <div class="connection-result" id="connectionResult">
+            <span class="material-icons-round connection-icon" id="connectionIcon">check_circle</span>
+            <span class="connection-message" id="connectionMessage"></span>
+        </div>
+    </div>
+
+    <!-- Saved Credentials Info -->
+    <div class="saved-credentials glass-card" id="savedCredentials" style="display:none;">
+        <h3 class="section-title">
+            <span class="material-icons-round">verified_user</span>
+            Saved Configuration
+        </h3>
+        <div class="credential-info">
+            <div class="info-row">
+                <span class="info-label">API URL</span>
+                <span class="info-value" id="savedUrl">—</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Username</span>
+                <span class="info-value" id="savedUsername">—</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Last Saved</span>
+                <span class="info-value" id="savedDate">—</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Last Test</span>
+                <span class="info-value" id="savedTestStatus">—</span>
+            </div>
+        </div>
+        <button class="btn btn-danger-outline" onclick="OrderPulse.clearSettings()">
+            <span class="material-icons-round">delete_forever</span>
+            <span>Clear Credentials</span>
+        </button>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        OrderPulse.loadSavedSettings();
+    });
+</script>
+{% endblock %}

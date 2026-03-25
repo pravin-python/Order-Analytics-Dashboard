@@ -1,0 +1,111 @@
+{% extends "theme.html" %}
+
+{% block title %}OrderPulse - Dashboard{% endblock %}
+{% block breadcrumb %}Dashboard{% endblock %}
+
+{% block content %}
+<!-- Filter Bar -->
+<section class="filter-bar glass-card" id="filterBar">
+    <div class="filter-group">
+        <div class="input-group">
+            <label for="fromDate">From Date</label>
+            <input type="date" id="fromDate" class="input-field" style="cursor: pointer;" onclick="if(this.showPicker) this.showPicker();">
+            <div id="fromDateError" class="invalid-feedback text-danger" style="display: none; font-size: 0.8rem; margin-top: 4px;"></div>
+        </div>
+        <div class="input-group">
+            <label for="toDate">To Date</label>
+            <input type="date" id="toDate" class="input-field" style="cursor: pointer;" onclick="if(this.showPicker) this.showPicker();">
+            <div id="toDateError" class="invalid-feedback text-danger" style="display: none; font-size: 0.8rem; margin-top: 4px;"></div>
+        </div>
+    </div>
+    <div id="dateGlobalError" class="text-danger" style="display: none; font-size: 0.85rem; padding: 0 16px; margin-bottom: 12px; width: 100%;"></div>
+    <div class="filter-actions">
+        <button class="btn btn-primary" id="loadOrdersBtn" onclick="OrderPulse.loadOrders()">
+            <span class="material-icons-round">sync</span>
+            <span>Load Orders</span>
+        </button>
+        <button class="btn btn-secondary" id="exportBtn" onclick="OrderPulse.exportExcel()" disabled>
+            <span class="material-icons-round">download</span>
+            <span>Export Excel</span>
+        </button>
+        <button class="btn btn-danger" id="cancelBtn" onclick="OrderPulse.cancelTask()" style="display:none;">
+            <span class="material-icons-round">stop</span>
+            <span>Stop</span>
+        </button>
+    </div>
+    <!-- Progress Bar -->
+    <div class="progress-bar-container" id="progressContainer" style="display:none;">
+        <div class="progress-bar" id="progressBar"></div>
+        <span class="progress-text" id="progressText">Starting...</span>
+    </div>
+</section>
+
+<!-- Stat Cards -->
+<section class="stats-grid" id="statsGrid">
+    <div class="stat-card glass-card" id="statTotalOrders">
+        <div class="stat-header">
+            <span class="material-icons-round stat-icon" style="color: var(--primary);">shopping_bag</span>
+            <span class="stat-badge badge-primary" id="statTotalBadge">+0%</span>
+        </div>
+        <div class="stat-value" id="totalOrdersValue">0</div>
+        <div class="stat-label">Total Orders</div>
+    </div>
+
+    <div class="stat-card glass-card" id="statAwb">
+        <div class="stat-header">
+            <span class="material-icons-round stat-icon" style="color: var(--secondary);">local_shipping</span>
+            <span class="stat-badge badge-secondary" id="statAwbBadge">0%</span>
+        </div>
+        <div class="stat-value" id="awbCountValue">0</div>
+        <div class="stat-label">AWB Assigned</div>
+    </div>
+
+    <div class="stat-card glass-card" id="statDispatch">
+        <div class="stat-header">
+            <span class="material-icons-round stat-icon" style="color: var(--warning);">schedule</span>
+            <span class="stat-badge badge-warning">hrs</span>
+        </div>
+        <div class="stat-value" id="avgDispatchValue">0</div>
+        <div class="stat-label">Avg Dispatch Time</div>
+    </div>
+
+    <div class="stat-card glass-card" id="stat24h">
+        <div class="stat-header">
+            <span class="material-icons-round stat-icon" style="color: var(--tertiary);">speed</span>
+            <span class="stat-badge badge-success" id="stat24hBadge">Good</span>
+        </div>
+        <div class="stat-value" id="within24hValue">0%</div>
+        <div class="stat-label">Within 24h Rate</div>
+    </div>
+</section>
+
+<!-- Charts Row 1 -->
+<section class="charts-grid">
+    {% include 'components/charts.html' %}
+</section>
+
+<!-- Line Chart Full Width -->
+<section class="chart-full glass-card">
+    <div class="chart-header">
+        <h3>Orders Over Time</h3>
+        <span class="chart-subtitle">Daily order volume trend</span>
+    </div>
+    <div class="chart-body">
+        <canvas id="lineChart"></canvas>
+    </div>
+</section>
+
+<!-- Order Table -->
+<section class="table-section glass-card" id="tableSection">
+    {% include 'components/table.html' %}
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        OrderPulse.Charts.init();
+    });
+</script>
+{% endblock %}
