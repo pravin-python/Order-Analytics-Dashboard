@@ -1,0 +1,49 @@
+{% extends "theme.html" %}
+
+{% block title %}Profile — OrderPulse{% endblock %}
+{% block breadcrumb %}Profile{% endblock %}
+
+{% block content %}
+<div class="profile-container">
+    <div class="profile-header glass-card">
+        <div class="profile-avatar-large">
+            <span class="material-icons-round">person</span>
+        </div>
+        <div class="profile-info">
+            <h2 id="profileDisplayName">{{ current_user.name }}</h2>
+            <p class="profile-email" id="profileDisplayEmail">{{ current_user.email }}</p>
+            <p class="profile-meta">Member since {{ current_user.created_at.strftime('%d %b %Y') if current_user.created_at else 'N/A' }}</p>
+        </div>
+    </div>
+
+    <div class="profile-form-card glass-card">
+        <h3>Edit Profile</h3>
+        <form id="profileForm" class="auth-form">
+            <div class="auth-input-group">
+                <span class="material-icons-round auth-input-icon">person</span>
+                <input type="text" id="profileName" class="auth-input" placeholder="Full Name" value="{{ current_user.name }}" required>
+            </div>
+
+            <div class="auth-input-group">
+                <span class="material-icons-round auth-input-icon">email</span>
+                <input type="email" id="profileEmail" class="auth-input" placeholder="Email" value="{{ current_user.email }}" required>
+            </div>
+
+            <div class="profile-actions">
+                <button type="submit" class="btn btn-primary" id="saveProfileBtn">
+                    <span class="material-icons-round">save</span>
+                    Save Changes
+                </button>
+                <a href="/auth/change-password" class="btn btn-outline">
+                    <span class="material-icons-round">key</span>
+                    Change Password
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/auth.js') }}"></script>
+{% endblock %}

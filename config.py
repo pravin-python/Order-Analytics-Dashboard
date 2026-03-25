@@ -38,6 +38,11 @@ class Config:
     # Order prefixes for multi-store filtering
     STORE_PREFIXES = ['PA', 'PI', 'MA', 'BL']
 
+    # Session / Cookie Security
+    SESSION_COOKIE_HTTPONLY = True
+    SESSION_COOKIE_SAMESITE = 'Lax'
+    REMEMBER_COOKIE_DURATION = 60 * 60 * 24 * 7   # 7 days in seconds
+
     # Logging
     LOG_DIR = os.path.join(BASE_DIR, 'logs')
 

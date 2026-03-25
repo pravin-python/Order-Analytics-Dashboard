@@ -3,6 +3,7 @@
 import logging
 from datetime import datetime
 from flask import Blueprint, request, jsonify, send_file, current_app
+from flask_login import login_required
 from app import db
 from app.models.settings import Settings
 from app.utils.encryption import encrypt_value, decrypt_value
@@ -37,6 +38,7 @@ def _get_services():
 
 
 @api_bp.route('/test-connection', methods=['POST'])
+@login_required
 def test_connection():
     """Test OMS API connection with provided or stored credentials."""
     data = request.get_json() or {}
@@ -71,6 +73,7 @@ def test_connection():
 
 
 @api_bp.route('/save-settings', methods=['POST'])
+@login_required
 def save_settings():
     """Save OMS API credentials (encrypted)."""
     data = request.get_json() or {}
@@ -113,6 +116,7 @@ def save_settings():
 
 
 @api_bp.route('/get-settings', methods=['GET'])
+@login_required
 def get_settings():
     """Get current saved settings (masked)."""
     settings = Settings.query.filter_by(is_active=True).first()
@@ -123,6 +127,7 @@ def get_settings():
 
 
 @api_bp.route('/settings', methods=['DELETE'])
+@login_required
 def clear_settings():
     """Clear all stored settings."""
     try:
@@ -137,6 +142,7 @@ def clear_settings():
 _last_dates = {'from': '', 'to': ''}
 
 @api_bp.route('/fetch-orders', methods=['POST'])
+@login_required
 def fetch_orders():
     """Trigger background order fetching and DB syncing."""
     data = request.get_json() or {}
@@ -186,6 +192,7 @@ def fetch_orders():
 
 
 @api_bp.route('/orders', methods=['GET'])
+@login_required
 def get_orders():
     """Fetch orders directly from Database for the dashboard."""
     from_date = request.args.get('from_date', _last_dates['from'])
@@ -206,6 +213,7 @@ def get_orders():
 
 
 @api_bp.route('/orders/status', methods=['GET'])
+@login_required
 def order_status():
     """Poll the status of a background order fetch task."""
     task_id = request.args.get('task_id', '')
@@ -217,6 +225,7 @@ def order_status():
 
 
 @api_bp.route('/orders/cancel', methods=['POST'])
+@login_required
 def cancel_orders():
     """Cancel a running background task."""
     data = request.get_json() or {}
@@ -228,6 +237,7 @@ def cancel_orders():
 
 
 @api_bp.route('/order/<code>', methods=['GET'])
+@login_required
 def get_order_detail(code):
     """Fetch detailed information for a specific order."""
     auth_svc, order_svc, error = _get_services()
@@ -242,6 +252,7 @@ def get_order_detail(code):
 
 
 @api_bp.route('/report', methods=['GET'])
+@login_required
 def get_report():
     """Get the latest processed analytics data from DB."""
     if not _last_dates['from'] or not _last_dates['to']:
@@ -259,6 +270,7 @@ def get_report():
 
 
 @api_bp.route('/export', methods=['GET'])
+@login_required
 def export_excel():
     """Export the latest analytics data to Excel."""
     if not _last_dates['from'] or not _last_dates['to']:
