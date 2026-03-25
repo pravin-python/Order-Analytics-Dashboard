@@ -1,12 +1,19 @@
 """Order service for fetching and processing OMS order data."""
 
 import logging
+import time
 from datetime import datetime
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from flask import current_app
 from app.utils.cache import cache
 
 logger = logging.getLogger(__name__)
+
+# Retry configuration
+MAX_RETRIES = 3
+RETRY_SLEEP_BASE = 2      # seconds (exponential: 2, 4, 8)
+RETRY_ON_STATUS = {502, 503, 429}  # HTTP status codes that trigger a retry
+PRE_REQUEST_SLEEP = 0.3   # small polite delay before every API call (seconds)
 
 
 class OrderService:
@@ -24,9 +31,57 @@ class OrderService:
             'Content-Type': 'application/json'
         }
 
+    def _make_request_with_retry(self, method, url, **kwargs):
+        """Make an HTTP request with automatic retry on 502/503/429 and connection errors.
+
+        Adds a small sleep before each request and uses exponential backoff between retries.
+        """
+        import requests
+
+        last_exception = None
+        for attempt in range(1, MAX_RETRIES + 1):
+            # Polite delay before every API call
+            time.sleep(PRE_REQUEST_SLEEP)
+            try:
+                response = requests.request(method, url, **kwargs)
+
+                if response.status_code in RETRY_ON_STATUS:
+                    wait = RETRY_SLEEP_BASE ** attempt
+                    logger.warning(
+                        f'[Attempt {attempt}/{MAX_RETRIES}] Got {response.status_code} '
+                        f'from {url}. Retrying in {wait}s...'
+                    )
+                    time.sleep(wait)
+                    continue
+
+                return response  # success or a non-retryable error code
+
+            except requests.exceptions.ConnectionError as e:
+                wait = RETRY_SLEEP_BASE ** attempt
+                logger.warning(
+                    f'[Attempt {attempt}/{MAX_RETRIES}] Connection error for {url}: {e}. '
+                    f'Retrying in {wait}s...'
+                )
+                last_exception = e
+                time.sleep(wait)
+            except requests.exceptions.Timeout as e:
+                wait = RETRY_SLEEP_BASE ** attempt
+                logger.warning(
+                    f'[Attempt {attempt}/{MAX_RETRIES}] Timeout for {url}. '
+                    f'Retrying in {wait}s...'
+                )
+                last_exception = e
+                time.sleep(wait)
+
+        # All retries exhausted
+        if last_exception:
+            raise last_exception
+        # If we exited the loop because of repeated bad status codes, do a final raise
+        response.raise_for_status()
+        return response
+
     def fetch_orders(self, from_date, to_date):
         """Fetch orders from the OMS API for a date range."""
-        import requests
         import json
 
         # The API expects ISO format with timezone
@@ -45,7 +100,8 @@ class OrderService:
 
         try:
             payload = json.dumps({'fromDate': from_date, 'toDate': to_date})
-            response = requests.post(
+            response = self._make_request_with_retry(
+                'POST',
                 f'{self.base_url}/services/rest/v1/oms/saleOrder/search',
                 headers=self._get_headers(),
                 data=payload,
@@ -63,14 +119,13 @@ class OrderService:
             logger.info(f'Fetched {len(orders)} orders.')
             return orders
 
-        except requests.exceptions.RequestException as e:
-            error_text = getattr(e.response, 'text', 'No response text')
+        except Exception as e:
+            error_text = getattr(getattr(e, 'response', None), 'text', 'No response text')
             logger.error(f'Error fetching orders: {e} - Response: {error_text}')
             raise
 
     def fetch_order_detail(self, order_code):
         """Fetch detailed information for a single order."""
-        import requests
         import json
 
         cache_key = f'order_detail_{order_code}'
@@ -82,7 +137,8 @@ class OrderService:
 
         try:
             payload = json.dumps({'code': order_code})
-            response = requests.post(
+            response = self._make_request_with_retry(
+                'POST',
                 f'{self.base_url}/services/rest/v1/oms/saleorder/get',
                 headers=self._get_headers(),
                 data=payload,
@@ -94,7 +150,7 @@ class OrderService:
             cache.set(cache_key, detail, ttl=current_app.config.get('CACHE_TTL', 300))
             return detail
 
-        except requests.exceptions.RequestException as e:
+        except Exception as e:
             logger.error(f'Error fetching order detail for {order_code}: {e}')
             raise
 
